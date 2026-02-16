@@ -14,18 +14,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// generateCmd represents the generate command
-var generateCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "Generate metadata for this tool",
-	Long:  ``,
-	Run:   generate,
+// metadataCmd represents the metadata command
+var metadataCmd = &cobra.Command{
+	Use:   "metadata",
+	Short: "Output metadata for this tool in schema.org or nfdi4earth format",
+	Long:  `Converts the tool specification and citation to a metadata format (schema.org or nfdi4earth) and prints it to stdout.`,
+	Run:   metadataRun,
 }
 
-func generate(cmd *cobra.Command, args []string) {
+func metadataRun(cmd *cobra.Command, args []string) {
 	v := config.GetViper()
 	citationFile := v.GetString("citation_file")
-	format := v.GetString("format")
+	format, _ := cmd.Flags().GetString("format")
 	if format == "" {
 		format = "schema.org"
 	}
@@ -42,6 +42,8 @@ func generate(cmd *cobra.Command, args []string) {
 	switch format {
 	case "schema.org":
 		converter = &converters.SchemaOrgConverter{}
+	case "nfdi4earth":
+		converter = &converters.NFDI4EarthConverter{}
 	}
 
 	converter.Ingest(spec)
@@ -52,7 +54,6 @@ func generate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-
-	generateCmd.Flags().String("format", "", "Format to generate the metadata in; defaults to schema.org")
-	rootCmd.AddCommand(generateCmd)
+	metadataCmd.Flags().String("format", "", "Format to generate the metadata in; defaults to schema.org (supported: schema.org, nfdi4earth)")
+	rootCmd.AddCommand(metadataCmd)
 }
