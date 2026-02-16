@@ -1,5 +1,7 @@
 # gotap
 
+[![DOI](https://zenodo.org/badge/1104655184.svg)](https://doi.org/10.5281/zenodo.18658795)
+
 CLI shim for [tool-spec](https://tool-spec.github.io/tool-specs/) compliant tools. It runs inside Docker containers and handles metadata verification, conversion, input parsing, and parameter binding generation.
 
 Part of the [tool-spec](https://github.com/tool-spec) ecosystem. See the [specification](https://tool-spec.github.io/tool-specs/) for context.
