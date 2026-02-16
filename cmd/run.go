@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/hydrocode-de/gotap/internal/config"
+	"github.com/hydrocode-de/gotap/internal/generate/bindings"
 	"github.com/hydrocode-de/gotap/internal/input"
 	"github.com/hydrocode-de/gotap/internal/io"
 	"github.com/hydrocode-de/gotap/internal/validation"
@@ -28,16 +29,24 @@ finally the tool is executed.`,
 
 func execute(cmd *cobra.Command, args []string) {
 	var failOnWarnings bool
+	var generateBindings bool
+	filteredArgs := make([]string, 0, len(args))
 	for _, arg := range args {
 		if arg == "--fail-on-warnings" {
 			failOnWarnings = true
+			continue
 		}
+		if arg == "--generate-bindings" {
+			generateBindings = true
+			continue
+		}
+		filteredArgs = append(filteredArgs, arg)
 	}
 
-	dry, err := PrepareInputs(cmd, args)
+	dry, err := PrepareInputs(cmd, filteredArgs)
 	cobra.CheckErr(err)
 
-	result, err := validation.LoadAndValidateSpec(args)
+	result, err := validation.LoadAndValidateSpec(filteredArgs)
 	cobra.CheckErr(err)
 
 	if result.WarningCount() > 0 && failOnWarnings || result.ErrorCount() > 0 {
@@ -54,6 +63,24 @@ func execute(cmd *cobra.Command, args []string) {
 
 	command, err := input.ResolveCommand(result.ToolSpec)
 	cobra.CheckErr(err)
+
+	if generateBindings {
+		target, outputFile, ok := input.InferBindingTarget(command.Executable)
+		if ok {
+			specFile := config.GetViper().GetString("spec_file")
+			outputPath := filepath.Join(filepath.Dir(specFile), outputFile)
+			gen, ok := bindings.GetGenerator(target)
+			if ok {
+				if err := gen.Generate(result.ToolSpec, outputPath); err != nil {
+					cobra.CheckErr(fmt.Errorf("failed to generate bindings: %w", err))
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "WARNING: --generate-bindings: no generator for target", target)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "WARNING: --generate-bindings: unsupported executable %q (python, Rscript, node, matlab, octave)\n", command.Executable)
+		}
+	}
 
 	if dry {
 		fmt.Println(command.Command)
@@ -84,5 +111,6 @@ func init() {
 	runCmd.Flags().Bool("update-inputs", false, "Update the inputs.json if arguments are provided and the file already exists.")
 
 	runCmd.Flags().Bool("fail-on-warnings", false, "Fail the tool if there are warnings.")
+	runCmd.Flags().Bool("generate-bindings", false, "Generate parameter bindings before running (inferred from tool command).")
 	rootCmd.AddCommand(runCmd)
 }

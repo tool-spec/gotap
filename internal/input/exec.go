@@ -121,6 +121,22 @@ func parseMatch(match string) (ResolvedCommand, error) {
 	}, nil
 }
 
+func InferBindingTarget(executable string) (target string, outputFile string, ok bool) {
+	exe := strings.ToLower(strings.TrimSpace(executable))
+	switch exe {
+	case "python", "python3":
+		return "python", "parameters.py", true
+	case "rscript":
+		return "r", "parameters.R", true
+	case "node":
+		return "javascript", "parameters.ts", true
+	case "matlab", "octave":
+		return "matlab", "get_parameters.m", true
+	default:
+		return "", "", false
+	}
+}
+
 func ResolveCommand(spec toolspec.ToolSpec) (ResolvedCommand, error) {
 	if spec.Command != "" {
 		return parseCommand(spec.Command)
