@@ -74,7 +74,7 @@ func LoadAndValidateSpec(args []string) (ValidationResult, error) {
 	}
 
 	hasErrors, errs := validate.ValidateInputs(toolSpec, toolInput)
-	if !hasErrors {
+	if hasErrors {
 		for _, err := range errs {
 			errors = append(errors, err)
 		}
