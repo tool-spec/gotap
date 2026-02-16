@@ -25,7 +25,7 @@ var generateCmd = &cobra.Command{
 func generate(cmd *cobra.Command, args []string) {
 	v := config.GetViper()
 	citationFile := v.GetString("citation_file")
-	format := v.GetString("format")
+	format, _ := cmd.Flags().GetString("format")
 	if format == "" {
 		format = "schema.org"
 	}
@@ -42,6 +42,8 @@ func generate(cmd *cobra.Command, args []string) {
 	switch format {
 	case "schema.org":
 		converter = &converters.SchemaOrgConverter{}
+	case "nfdi4earth":
+		converter = &converters.NFDI4EarthConverter{}
 	}
 
 	converter.Ingest(spec)
@@ -53,6 +55,6 @@ func generate(cmd *cobra.Command, args []string) {
 
 func init() {
 
-	generateCmd.Flags().String("format", "", "Format to generate the metadata in; defaults to schema.org")
+	generateCmd.Flags().String("format", "", "Format to generate the metadata in; defaults to schema.org (supported: schema.org, nfdi4earth)")
 	rootCmd.AddCommand(generateCmd)
 }
