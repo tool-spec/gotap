@@ -20,5 +20,5 @@ Used by [tool_template_python](https://github.com/tool-spec/tool_template_python
 ## Build
 
 ```bash
-go build -o gotap .
+go build -ldflags "-X github.com/hydrocode-de/gotap/cmd.Version=$(git describe --tags --always --dirty)" -o gotap .
 ```

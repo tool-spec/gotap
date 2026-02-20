@@ -24,14 +24,6 @@ jobs:
         go-version: '1.25.4'
         cache-dependency-path: go.sum
 
-    - name: Build binary
-      env:
-        GOOS: linux
-        GOARCH: amd64
-        CGO_ENABLED: 0
-      run: |
-        go build -o spec -ldflags="-w -s" .
-
     - name: Get version from tag
       id: get_version
       run: |
@@ -42,6 +34,14 @@ jobs:
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "tag=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Build binary
+      env:
+        GOOS: linux
+        GOARCH: amd64
+        CGO_ENABLED: 0
+      run: |
+        go build -o spec -ldflags="-w -s -X github.com/hydrocode-de/gotap/cmd.Version=${{ steps.get_version.outputs.version }}" .
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
@@ -54,4 +54,3 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

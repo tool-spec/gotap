@@ -22,11 +22,15 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/hydrocode-de/gotap/internal/config"
 	"github.com/spf13/cobra"
 )
+
+// Version is set at build time via -ldflags.
+var Version = "dev"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -40,6 +44,14 @@ It can be used to verify and convert the metadata.
 More info can be found at:
 
 https://vforwater.github.io/tool-specs`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		showVersion, _ := cmd.Flags().GetBool("version")
+		if showVersion {
+			fmt.Fprintln(cmd.OutOrStdout(), cmd.Version)
+			return nil
+		}
+		return cmd.Help()
+	},
 }
 
 func Execute() {
@@ -54,7 +66,8 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Version = Version
+	rootCmd.Flags().BoolP("version", "v", false, "Print gotap version")
 	rootCmd.PersistentFlags().String("spec-file", "", "Path to the tool.yml metadata file")
 	rootCmd.PersistentFlags().String("input-file", "", "Path to the inputs.json file")
 	rootCmd.PersistentFlags().String("citation-file", "", "Path to the CITATION.cff file")

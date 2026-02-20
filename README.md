@@ -29,6 +29,7 @@ These templates will use gotap (or already plan to):
 | `run`       | Validate inputs and execute the tool entrypoint |
 
 Flags are inherited from the root where relevant: `--spec-file`, `--input-file`, `--citation-file`, `--license-file`, `--output-folder`.
+Version check: `gotap --version` or `gotap -v`.
 
 ## Bindings
 
@@ -51,7 +52,7 @@ The `generate` command overwrites the output file if it already exists.
 
 1. Build gotap:
    ```bash
-   go build -o gotap .
+   go build -ldflags "-X github.com/hydrocode-de/gotap/cmd.Version=$(git describe --tags --always --dirty)" -o gotap .
    ```
 
 2. Regenerate bindings when `tool.yml` changes:
@@ -66,5 +67,5 @@ The `generate` command overwrites the output file if it already exists.
 ## Build
 
 ```bash
-go build -o gotap .
+go build -ldflags "-X github.com/hydrocode-de/gotap/cmd.Version=$(git describe --tags --always --dirty)" -o gotap .
 ```
