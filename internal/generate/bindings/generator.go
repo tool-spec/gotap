@@ -9,10 +9,11 @@ type Generator interface {
 }
 
 var generators = map[string]Generator{
-	"python":    &PythonGenerator{},
-	"r":         &RGenerator{},
-	"javascript": &JavaScriptGenerator{},
-	"matlab":    &MatlabGenerator{},
+	"python":   &PythonGenerator{},
+	"r":       &RGenerator{},
+	"node-js": &JavaScriptPlainGenerator{},
+	"node-ts": &JavaScriptGenerator{},
+	"matlab":  &MatlabGenerator{},
 }
 
 func GetGenerator(target string) (Generator, bool) {

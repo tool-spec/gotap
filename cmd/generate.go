@@ -24,7 +24,7 @@ func generateRun(cmd *cobra.Command, args []string) {
 	output, _ := cmd.Flags().GetString("output")
 
 	if target == "" {
-		cobra.CheckErr(fmt.Errorf("--target is required (python, r, javascript, matlab)"))
+		cobra.CheckErr(fmt.Errorf("--target is required (python, r, matlab, node-js, node-ts)"))
 	}
 	if output == "" {
 		cobra.CheckErr(fmt.Errorf("--output is required"))
@@ -44,7 +44,7 @@ func generateRun(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	generateCmd.Flags().String("target", "", "Target language (python, r, javascript, matlab)")
+	generateCmd.Flags().String("target", "", "Target language (python, r, matlab, node-js, node-ts)")
 	generateCmd.Flags().String("output", "", "Output file path")
 	generateCmd.MarkFlagRequired("target")
 	generateCmd.MarkFlagRequired("output")

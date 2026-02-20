@@ -129,7 +129,9 @@ func InferBindingTarget(executable string) (target string, outputFile string, ok
 	case "rscript":
 		return "r", "parameters.R", true
 	case "node":
-		return "javascript", "parameters.ts", true
+		return "node-js", "parameters.js", true
+	case "tsx", "ts-node":
+		return "node-ts", "parameters.ts", true
 	case "matlab", "octave":
 		return "matlab", "get_parameters.m", true
 	default:

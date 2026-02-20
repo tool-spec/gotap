@@ -13,6 +13,7 @@ These templates will use gotap (or already plan to):
 - [tool_template_python](https://github.com/tool-spec/tool_template_python)
 - [tool_template_r](https://github.com/tool-spec/tool_template_r)
 - [tool_template_node](https://github.com/tool-spec/tool_template_node)
+- [tool_template_typescript](https://github.com/tool-spec/tool_template_typescript)
 - [tool_template_octave](https://github.com/tool-spec/tool_template_octave)
 - [tool_template_matlab](https://github.com/tool-spec/tool_template_matlab)
 - [tool_template_jupyter](https://github.com/tool-spec/tool_template_jupyter)
@@ -33,16 +34,20 @@ Version check: `gotap --version` or `gotap -v`.
 
 ## Bindings
 
-`gotap generate` produces typed parameter access code for Python, R, JavaScript, and MATLAB. Each binding runs `gotap parse` and returns structured parameters and data paths.
+`gotap generate` produces parameter access code for Python, R, JavaScript (plain or TypeScript), and MATLAB. Each binding runs `gotap parse` and returns structured parameters and data paths.
 
 ### Generate usage
 
 ```bash
 gotap generate --target=python --output=src/parameters.py --spec-file=src/tool.yml
 gotap generate --target=r --output=src/parameters.R --spec-file=src/tool.yml
-gotap generate --target=javascript --output=src/parameters.ts --spec-file=src/tool.yml
+gotap generate --target=node-js --output=src/parameters.js --spec-file=src/tool.yml
+gotap generate --target=node-ts --output=src/parameters.ts --spec-file=src/tool.yml
 gotap generate --target=matlab --output=get_parameters.m --spec-file=src/tool.yml
 ```
+
+- `node-js`: plain JavaScript (ESM), for Node.js projects
+- `node-ts`: TypeScript with interfaces, for Node.js TypeScript projects
 
 If the spec defines a single tool, you can omit the tool name. Otherwise pass it as the first argument or set `RUN_TOOL`.
 
