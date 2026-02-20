@@ -3,6 +3,7 @@ package io
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/alexander-lindner/go-cff"
 	toolspec "github.com/hydrocode-de/tool-spec-go"
@@ -25,6 +26,18 @@ func ReadSpecFile(path string) (toolspec.SpecFile, error) {
 func ReadInputFile(path string) (toolspec.InputFile, error) {
 	inputBuffer, err := os.ReadFile(path)
 	if err != nil {
+		// Backward-compatible fallback for tools that still mount /in/inputs.json.
+		if os.IsNotExist(err) && filepath.Base(path) == "input.json" {
+			fallbackPath := filepath.Join(filepath.Dir(path), "inputs.json")
+			fallbackBuffer, fallbackErr := os.ReadFile(fallbackPath)
+			if fallbackErr == nil {
+				input, parseErr := toolspec.LoadInputs(fallbackBuffer)
+				if parseErr != nil {
+					return toolspec.InputFile{}, fmt.Errorf("failed to load input file: %w", parseErr)
+				}
+				return input, nil
+			}
+		}
 		return toolspec.InputFile{}, fmt.Errorf("failed to read input file: %w", err)
 	}
 
