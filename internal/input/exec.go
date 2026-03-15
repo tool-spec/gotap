@@ -32,6 +32,10 @@ type ExecutionResult struct {
 	CPUAverage    uint64        `json:"cpu_average_permille"`
 	ReadBytesSum  uint64        `json:"read_bytes_sum"`
 	WriteBytesSum uint64        `json:"write_bytes_sum"`
+	RunID         string        `json:"run_id,omitempty"`
+	LogFile       string        `json:"log_file,omitempty"`
+	LogFormat     string        `json:"log_format,omitempty"`
+	LogLevel      string        `json:"log_level,omitempty"`
 }
 
 func isExecutable(path string) bool {
@@ -189,8 +193,9 @@ func ResolveCommand(spec toolspec.ToolSpec) (ResolvedCommand, error) {
 	return ResolvedCommand{}, fmt.Errorf("the command could not be found. Consider adding it to your tool.yml")
 }
 
-func ExecuteCommand(command ResolvedCommand) (ExecutionResult, error) {
+func ExecuteCommand(command ResolvedCommand, extraEnv []string) (ExecutionResult, error) {
 	cmd := exec.Command("sh", "-c", command.Command)
+	cmd.Env = append(os.Environ(), extraEnv...)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
