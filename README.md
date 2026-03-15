@@ -32,6 +32,45 @@ These templates will use gotap (or already plan to):
 Flags are inherited from the root where relevant: `--spec-file`, `--input-file`, `--citation-file`, `--license-file`, `--output-folder`.
 Version check: `gotap --version` or `gotap -v`.
 
+## Unified Logging
+
+`gotap run` now creates a structured logging context for the tool process and injects it via environment variables:
+
+- `GOTAP_RUN_ID`
+- `GOTAP_LOG_FILE`
+- `GOTAP_LOG_FORMAT`
+- `GOTAP_LOG_LEVEL`
+
+The canonical format is JSON Lines written to `_logs.jsonl` in the output folder. `stdout` and `stderr` are still captured separately as before.
+
+### Developer workflow
+
+Generated bindings now expose runtime helpers alongside parameter parsing:
+
+- `get_parameters()`
+- `get_data()` where supported
+- `get_run_context()` / `getRunContext()`
+- `get_logger()` / `getLogger()`
+
+Example in Python:
+
+```python
+from parameters import get_parameters, get_logger
+
+params = get_parameters()
+log = get_logger()
+
+log.info("start", "Loading inputs")
+log.warn("missing-value", "3 cells were NA", field="elevation")
+log.info("done", "Finished successfully")
+```
+
+Each log event is appended as one JSON object per line:
+
+```json
+{"ts":"2026-03-15T10:12:01Z","level":"info","event":"start","message":"Loading inputs","run_id":"abc123"}
+```
+
 ## Bindings
 
 `gotap generate` produces parameter access code for Python, R, JavaScript (plain or TypeScript), and MATLAB. Each binding runs `gotap parse` and returns structured parameters and data paths.

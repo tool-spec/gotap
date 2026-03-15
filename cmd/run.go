@@ -10,6 +10,7 @@ import (
 	"github.com/hydrocode-de/gotap/internal/generate/bindings"
 	"github.com/hydrocode-de/gotap/internal/input"
 	"github.com/hydrocode-de/gotap/internal/io"
+	"github.com/hydrocode-de/gotap/internal/logging"
 	"github.com/hydrocode-de/gotap/internal/validation"
 	"github.com/spf13/cobra"
 )
@@ -90,9 +91,19 @@ func execute(cmd *cobra.Command, args []string) {
 	// execute the command finally. This can later be replaced by
 	// by logging, tracing, etc.
 	outputFolder := config.GetViper().GetString("output_folder")
+	if err := os.MkdirAll(outputFolder, 0755); err != nil {
+		cobra.CheckErr(err)
+	}
 
-	cmdResult, err := input.ExecuteCommand(command)
+	runContext, err := logging.NewRunContext(outputFolder)
 	cobra.CheckErr(err)
+
+	cmdResult, err := input.ExecuteCommand(command, runContext.Env())
+	cobra.CheckErr(err)
+	cmdResult.RunID = runContext.RunID
+	cmdResult.LogFile = runContext.LogFile
+	cmdResult.LogFormat = runContext.LogFormat
+	cmdResult.LogLevel = runContext.LogLevel
 
 	if cmdResult.Stderr != nil {
 		os.WriteFile(filepath.Join(outputFolder, "STDERR"), cmdResult.Stderr, 0644)
